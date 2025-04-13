@@ -55,6 +55,11 @@ class Builder {
     prev_key_ = key;
   }
 
+  bool CheckFeasible(size_t node_limit)
+  {
+    return BuildOffline(node_limit);
+  }
+
   // Finalizes the construction and returns a read-only `RadixSpline`.
   CompactHistTree<KeyType> Finalize() {
     // Last key needs to be equal to `max_key_`.
@@ -218,7 +223,7 @@ class Builder {
     tree_.clear();
   }
 
-  void BuildOffline() {
+  bool BuildOffline(size_t node_limit = std::numeric_limits<size_t>::max()) {
     // Init the node, which covers the range `curr` := [a, b[.
     auto initNode = [&](unsigned nodeIndex, Range curr) -> void {
       // Compute `width` of the current node (2^`width` represents the range
@@ -300,12 +305,15 @@ class Builder {
 
           // And push it into the queue.
           nodes.push(tree_.size() - 1);
+          if (nodes.size() > node_limit)
+            return false;
         } else {
           // Leaf
           tree_[node].second[bin].first |= Leaf;
         }
       }
     }
+    return true;
   }
 
   // Flatten the layout of the tree.
