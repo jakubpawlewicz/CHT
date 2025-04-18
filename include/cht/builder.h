@@ -305,7 +305,7 @@ class Builder {
 
           // And push it into the queue.
           nodes.push(tree_.size() - 1);
-          if (nodes.size() > node_limit)
+          if (tree_.size() * num_bins_ > node_limit)
             return false;
         } else {
           // Leaf
